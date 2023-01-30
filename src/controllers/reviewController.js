@@ -6,14 +6,14 @@ const valid = require("../validation/validation")
 const reviewCreate = async function (req, res) {
 
     try {
-        const bookIdByparam = req.params.bookId
+        const bookId = req.params.bookId
         let bodyData = req.body
-        let { bookId, reviewedBy, reviewedAt, rating, review } = bodyData
+        let {reviewedBy, reviewedAt, rating, review } = bodyData
 
-        if (!mongoose.isValidObjectId(bookIdByparam)) {
+        if (!mongoose.isValidObjectId(bookId)) {
             return res.status(400).send({ status: false, message: "provide valid book id" })
         }
-        const checkBookId = await bookModel.findOne({ _id: bookIdByparam, isDeleted: false })
+        const checkBookId = await bookModel.findOne({ _id: bookId, isDeleted: false })
         if (!checkBookId) {
             return res.status(404).send({ status: false, message: "book id not found" })
         }
@@ -21,14 +21,14 @@ const reviewCreate = async function (req, res) {
             return res.status(400).send({ status: false, message: "Provide some details to create review" })
         }
         
-        if (!bookId || typeof bookId != "string") {
-            return res.status(400).send({ status: false, messsage: "please provide bookId in string" })
-        }
-        bookId = bodyData.bookId = bookId.trim()
+        // if (!bookId || typeof bookId != "string") {
+        //     return res.status(400).send({ status: false, messsage: "please provide bookId in string" })
+        // }
+        // bookId = bodyData.bookId = bookId.trim()
 
-        if (!mongoose.isValidObjectId(bookId)) {
-            return res.status(400).send({ status: false, message: "provide valid book id" })
-        }
+        // if (!mongoose.isValidObjectId(bookId)) {
+        //     return res.status(400).send({ status: false, message: "provide valid book id" })
+        // }
         const checkBookIdbyBody = await bookModel.findOne({ _id: bookId, isDeleted: false })
         if (!checkBookIdbyBody) {
             return res.status(404).send({ status: false, message: "book id not found" })
@@ -67,20 +67,20 @@ const reviewCreate = async function (req, res) {
         }
 
 
-        const createReview = await reviewModel.create(bodyData)
+        const createReview = await reviewModel.create({bookId,reviewedBy,reviewedAt,rating,review})
 
 
-        const selectData = {
-            _id: createReview._id,
-            bookId: createReview.bookId,
-            reviewedBy: createReview.reviewedBy,
-            reviewedAt: createReview.reviewedAt,
-            rating: createReview.rating,
-            review: createReview.review
-        }
+        // const selectData = {
+        //     _id: createReview._id,
+        //     bookId: createReview.bookId,
+        //     reviewedBy: createReview.reviewedBy,
+        //     reviewedAt: createReview.reviewedAt,
+        //     rating: createReview.rating,
+        //     review: createReview.review
+        // }
         await bookModel.findOneAndUpdate({ _id: bookId, isDeleted: false }, { $inc: { reviews: +1 } }, { new: true })
         
-        return res.status(201).send({ status: true, message: "Success", data: selectData })
+        return res.status(201).send({ status: true, message: "Success", data: createReview })
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
@@ -165,6 +165,7 @@ const reviewDeletion = async function (req, res) {
         if (findBook.reviews > 0) {
 
             const findReview = await reviewModel.findOneAndUpdate({ _id: reviewId, isDeleted: false }, { $set: { isDeleted: true } })
+            
             if (!findReview) {
                 return res.status(404).send({ status: false, message: " No such review found " })
             }
@@ -173,7 +174,6 @@ const reviewDeletion = async function (req, res) {
 
             return res.status(200).send({ status: true, message: "review deleted successfully" })
         }
-
         return res.status(404).send({ status: true, message: "no review found for this book" })
 
     }
