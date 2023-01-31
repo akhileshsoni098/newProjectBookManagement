@@ -29,10 +29,10 @@ const reviewCreate = async function (req, res) {
         // if (!mongoose.isValidObjectId(bookId)) {
         //     return res.status(400).send({ status: false, message: "provide valid book id" })
         // }
-        const checkBookIdbyBody = await bookModel.findOne({ _id: bookId, isDeleted: false })
-        if (!checkBookIdbyBody) {
-            return res.status(404).send({ status: false, message: "book id not found" })
-        }
+        // const checkBookIdbyBody = await bookModel.findOne({ _id: bookId, isDeleted: false })
+        // if (!checkBookIdbyBody) {
+        //     return res.status(404).send({ status: false, message: "book id not found" })
+        // }
 
         if (!reviewedBy) {
             req.body.reviewedBy = "Guest"
@@ -45,19 +45,29 @@ const reviewCreate = async function (req, res) {
             reviewedBy = bodyData.reviewedBy = reviewedBy.trim()
         }
 
-        if (!reviewedAt || typeof (reviewedAt) != 'string')
-            return res.status(400).send({ status: false, message: "Please provide the releasedAt in string" })
-
+        if (!reviewedAt ){
+            return res.status(400).send({ status: false, message: "Please provide the releasedAt" })
+        }
+        if (typeof (reviewedAt) != 'string'){
+        return res.status(400).send({ status: false, message: "Please provide the releasedAt in string" })
+        }
             reviewedAt = bodyData.reviewedAt = reviewedAt.trim()
 
         if (!valid.dateReg(reviewedAt)) {
             return res.status(400).send({ status: false, message: "Please provide valid date e.g. YYYY-MM-DD" })
         }
+//=======================================================
+if (!rating) {
+    return res.status(400).send({ status: false, messsage: "Please provide rating" })
+}
+if ( typeof rating != "number") {
+    return res.status(400).send({ status: false, messsage: "Please provide rating in number" })
+}
 
-        if (!rating || (rating < 1 || rating > 5) || typeof rating != "number") {
-            return res.status(400).send({ status: false, messsage: "Please provide valid ratings from 1-5" })
+        if (rating < 1 || rating > 5) {
+            return res.status(400).send({ status: false, messsage: "Please provide rating 1 to 5" })
         }
-
+//=============================================================
         if (review) {
             if (typeof (review) != "string") {
                 return res.status(400).send({ status: false, messsage: "Please provide valid review" })
@@ -165,7 +175,7 @@ const reviewDeletion = async function (req, res) {
         if (findBook.reviews > 0) {
 
             const findReview = await reviewModel.findOneAndUpdate({ _id: reviewId, isDeleted: false }, { $set: { isDeleted: true } })
-            
+
             if (!findReview) {
                 return res.status(404).send({ status: false, message: " No such review found " })
             }

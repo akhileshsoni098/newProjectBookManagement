@@ -15,7 +15,7 @@ const createBook = async function (req, res) {
         if (Object.keys(bookData).length == 0) {
             return res.status(400).send({ status: false, message: "Please provide some data to create book" })
         }
-//================================================================
+//================================================================ title
         if (!title){
             return res.status(400).send({ status: false, message: "Please provide title" })
         }
@@ -32,7 +32,7 @@ const createBook = async function (req, res) {
             return res.status(400).send({ status: false, message: "This book already exists" })
      }
 
-//====================================================
+//==================================================== excerpt=====
         if (!excerpt){
             return res.status(400).send({ status: false, message: "Please provide the excerpt" })
         }
@@ -41,7 +41,7 @@ const createBook = async function (req, res) {
         excerpt = bookData.excerpt = excerpt.trim()
 
 
-//====================================================
+//==================================================== ISBN
 
         if (!ISBN){
             return res.status(400).send({ status: false, message: "Please provide the ISBN" })
@@ -59,7 +59,7 @@ const createBook = async function (req, res) {
             return res.status(400).send({ status: false, message: "This ISBN number already exists" })
 
 
-//======================================================
+//====================================================== Category 
 
         if (!category ){
             return res.status(400).send({ status: false, message: "Please provide category " })
@@ -68,7 +68,7 @@ const createBook = async function (req, res) {
             return res.status(400).send({ status: false, message: "Please provide category in string" })
             }
         category = bookData.category = category.trim()
-//=============================================
+//=============================================Subcategory
         if (!subcategory){
             return res.status(400).send({ status: false, message: "Please provide subcategory" })
         }
@@ -76,7 +76,7 @@ const createBook = async function (req, res) {
             return res.status(400).send({ status: false, message: "Please provide subcategory in string" })
             }
         subcategory = bookData.subcategory = subcategory.trim()
-//=====================================================================
+//=====================================================================ReleasedAT
         if (!releasedAt){
             return res.status(400).send({ status: false, message: "Please provide the releasedAt" })
         }
@@ -118,6 +118,7 @@ const getBook = async function (req, res) {
         }
 //====================================================
         if (Object.keys(data).length == 0) {
+            
             const fetchData = await bookModel.find({ isDeleted: false }).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, reviews: 1, releasedAt: 1 }).sort({ title: 1 })
           
 
