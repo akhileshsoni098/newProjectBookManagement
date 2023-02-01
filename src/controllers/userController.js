@@ -3,7 +3,7 @@ const valid = require("../validation/validation")
 const userModel = require("../models/userModel");
 const jwt = require('jsonwebtoken')
 
-
+//============================================= User Registration  ==========================================================================================
 const userRegister = async function (req, res) {
     try {
         const userData = req.body;
@@ -15,7 +15,7 @@ const userRegister = async function (req, res) {
                 .status(400)
                 .send({ status: false, message: "Please provide some data to create user" });
         }
-//====================================
+//==================================== title validation ==================================================
         if (!title ) {
             return res
                 .status(400)
@@ -34,7 +34,7 @@ const userRegister = async function (req, res) {
                 .status(400)
                 .send({ status: false, message: "please provide valid title" });
         }
-//================================================
+//================================================ name validation ===================================================
 
 
         if (!name) {
@@ -55,7 +55,7 @@ const userRegister = async function (req, res) {
                 .send({ status: false, message: "enter valid name" });
         }
 
-    //=============================================
+    //============================================= phone validation ===================================================================
 
         if (!phone) {
             return res
@@ -81,7 +81,7 @@ const userRegister = async function (req, res) {
                 .send({ status: false, message: "phone is already exist" });
         }
 
-        //===========================================
+        //=========================================== email validation ====================================================================================
 
         if (!email) {
             return res
@@ -108,7 +108,7 @@ if ( typeof(email) != "string") {
                 .send({ status: false, message: "email is already exist" });
         }
 
-//===============================================================
+//========================================================== password validation =================================
 
         if (!password ) {
             return res
@@ -127,7 +127,7 @@ if ( typeof(email) != "string") {
                 .status(400)
                 .send({ status: false, message: "Password should contain atleast 1 lowercase, 1 uppercase, 1 numeric ,1 special character, range between 8-12" });
         }
-//=========================================================================================
+//========================================== address validation =================================================
 
         if(address){
             if (!address.street ) {
@@ -135,6 +135,7 @@ if ( typeof(email) != "string") {
                     .status(400)
                     .send({ status: false, message: "Please provide street name in address" });
             }
+
             if (typeof (address.street) != "string") {
                 return res
                     .status(400)
@@ -142,8 +143,7 @@ if ( typeof(email) != "string") {
             }
             address.street = userData.address.street = address.street.trim()
 
-            //========================================
-
+   
             if (!address.city ) {
                 return res
                     .status(400)
@@ -156,7 +156,6 @@ if ( typeof(email) != "string") {
             }
             address.city = userData.address.city = address.city.trim()
 
-//================================================
             if (!address.pincode ) {
                 return res
                     .status(400)
@@ -175,7 +174,7 @@ if ( typeof(email) != "string") {
                     .send({ status: false, message: "Please provide valid pincode in following format, e.g: ** or * *" })
             }
         }
-        //=================================================
+        //================================================= storing data of user in data base =============================== 
         const registeredData = await userModel.create(userData);
         res
             .status(201)
@@ -186,6 +185,8 @@ if ( typeof(email) != "string") {
 }
 
 
+// =============================================== Log In ==========================================================
+
 
 const userLogin = async function(req,res){
     try {
@@ -194,7 +195,7 @@ const userLogin = async function(req,res){
         if(Object.keys(data).length==0){
             return res.status(400).send({status: false, message: "Please provide mandatory details"})
         }
-//===========================
+//=========================== email and password validation =====================================
 
         if(!email ){
             return res.status(400).send({status: false, message: "Please provide email-id "})
@@ -221,20 +222,24 @@ const userLogin = async function(req,res){
               .status(400)
               .send({ status: false, message: "Please provide valid password" });
           }
-        //===========================================
+        //===============finding the document related to given email and password ============================
         const userDetail = await userModel.findOne({email:email, password: password})
         if(!userDetail){
             return res.status(401).send({status: false, message: " email or password not matched"})
         }
 
+
         let payLoad = {userId : userDetail._id}
+
+
+//============================= Generating token ================================
 
         let token = jwt.sign(
             payLoad ,
         "secretKeyProject4", {expiresIn : "1h" })
 
         res.status(200).send({status: true, message:"successfully login", data: {token}})
-//=========================================================================
+
     } catch (error) {
         res.status(500).send({status: false, message: error.message})
     }
@@ -243,3 +248,6 @@ const userLogin = async function(req,res){
 
 
 module.exports = { userRegister, userLogin }
+
+
+

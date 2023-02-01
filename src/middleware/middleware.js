@@ -4,12 +4,17 @@ const mongoose = require("mongoose");
 const bookModel = require("../models/bookModel");
 const userModel = require("../models/userModel")
 
+
+
+// ============================ authentication ===============================================================
+
 const authentication = function (req, res, next) {
     try {
         const token = req.headers["x-api-key"];
         if (!token) {
             return res.status(400).send({ status: false, message: "Header token is required !" });
         }
+// ================================== verifying token ===========================================================
         jwt.verify(token, 'secretKeyProject4', function (err, decoded) {
             if (err) {
                 return res.status(401).send({ message: err.message })
@@ -24,6 +29,8 @@ const authentication = function (req, res, next) {
     }
 
 }
+
+// ========================================== authorization ===================================
 
 const authorization = async function (req, res, next) {
     try {
@@ -49,12 +56,14 @@ const authorization = async function (req, res, next) {
     }
 }
 
+// =================================== Authorization book creation ========================================================
+
 const createBookAuth = async function (req, res, next) {
     try {
         const tokenUserId = req.decodedToken.userId
 
         let userId = req.body.userId
-//===============================
+
         if (!userId){
             return res.status(400).send({ status: false, message: "Please provide the userID" })
         }
@@ -71,12 +80,12 @@ const createBookAuth = async function (req, res, next) {
         const findUser = await userModel.findOne({ _id: userId, isDeleted: false })
         if (!findUser)
             return res.status(404).send({ status: false, message: "user not found" })
-//===============================================
+//===========================  payload and present user checking    ====================
         if (tokenUserId != userId) {
             return res.status(403).send({ status: false, message: "user Unauthorised access" });
         }
         next()
-        //========================================
+     
     } catch (error) {
         res.status(500).send({ status: false, message: error.message })
     }

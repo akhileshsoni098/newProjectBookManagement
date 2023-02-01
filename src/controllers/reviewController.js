@@ -3,6 +3,9 @@ const bookModel = require('../models/bookModel')
 const reviewModel = require('../models/reviewModel')
 const valid = require("../validation/validation")
 
+
+//=============================================== creating review =========================================
+
 const reviewCreate = async function (req, res) {
 
     try {
@@ -20,20 +23,6 @@ const reviewCreate = async function (req, res) {
         if (Object.keys(req.body).length == 0) {
             return res.status(400).send({ status: false, message: "Provide some details to create review" })
         }
-        
-        // if (!bookId || typeof bookId != "string") {
-        //     return res.status(400).send({ status: false, messsage: "please provide bookId in string" })
-        // }
-        // bookId = bodyData.bookId = bookId.trim()
-
-        // if (!mongoose.isValidObjectId(bookId)) {
-        //     return res.status(400).send({ status: false, message: "provide valid book id" })
-        // }
-        // const checkBookIdbyBody = await bookModel.findOne({ _id: bookId, isDeleted: false })
-        // if (!checkBookIdbyBody) {
-        //     return res.status(404).send({ status: false, message: "book id not found" })
-        // }
-
         if (!reviewedBy) {
             req.body.reviewedBy = "Guest"
         }
@@ -56,7 +45,7 @@ const reviewCreate = async function (req, res) {
         if (!valid.dateReg(reviewedAt)) {
             return res.status(400).send({ status: false, message: "Please provide valid date e.g. YYYY-MM-DD" })
         }
-//=======================================================
+
 if (!rating) {
     return res.status(400).send({ status: false, messsage: "Please provide rating" })
 }
@@ -67,7 +56,7 @@ if ( typeof rating != "number") {
         if (rating < 1 || rating > 5) {
             return res.status(400).send({ status: false, messsage: "Please provide rating 1 to 5" })
         }
-//=============================================================
+
         if (review) {
             if (typeof (review) != "string") {
                 return res.status(400).send({ status: false, messsage: "Please provide valid review" })
@@ -80,14 +69,6 @@ if ( typeof rating != "number") {
         const createReview = await reviewModel.create({bookId,reviewedBy,reviewedAt,rating,review})
 
 
-        // const selectData = {
-        //     _id: createReview._id,
-        //     bookId: createReview.bookId,
-        //     reviewedBy: createReview.reviewedBy,
-        //     reviewedAt: createReview.reviewedAt,
-        //     rating: createReview.rating,
-        //     review: createReview.review
-        // }
         await bookModel.findOneAndUpdate({ _id: bookId, isDeleted: false }, { $inc: { reviews: +1 } }, { new: true })
         
         return res.status(201).send({ status: true, message: "Success", data: createReview })
@@ -97,6 +78,7 @@ if ( typeof rating != "number") {
     }
 }
 
+//=============================== updating review ===============================================================
 
 const updateReview = async function (req, res) {
     const bookId = req.params.bookId
@@ -153,6 +135,8 @@ const updateReview = async function (req, res) {
 
 }
 
+
+//======================================== deleting review ===========================================================
 
 const reviewDeletion = async function (req, res) {
 
